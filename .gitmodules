@@ -1,0 +1,3 @@
+[submodule "proto"]
+	path = proto
+	url = git@github.com:takimbirprojeler/eticaret.backend.proto.git
