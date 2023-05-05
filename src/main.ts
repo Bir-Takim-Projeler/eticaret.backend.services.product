@@ -1,6 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { ProductModule } from './product.module';
-import { Transport, MicroserviceOptions, BaseRpcExceptionFilter, RpcException } from '@nestjs/microservices';
+import {
+  Transport,
+  MicroserviceOptions,
+  BaseRpcExceptionFilter,
+  RpcException,
+} from '@nestjs/microservices';
 import { join } from 'path';
 import { ArgumentsHost, Catch, RpcExceptionFilter } from '@nestjs/common';
 import { Observable, throwError } from 'rxjs';
@@ -8,10 +13,9 @@ import { Observable, throwError } from 'rxjs';
 @Catch(RpcException)
 export class ExceptionFilter implements RpcExceptionFilter<RpcException> {
   catch(exception: RpcException, host: ArgumentsHost): Observable<any> {
+    const message = exception.getError();
 
-    const message = exception.getError()
-
-    console.log(message)
+    console.log(message);
     return throwError(() => exception.getError());
   }
 }
@@ -23,20 +27,16 @@ async function bootstrap() {
 
   const app = await NestFactory.createMicroservice(ProductModule, {
     transport: Transport.GRPC,
-    url: "localhost:5000",
+    url: 'localhost:5000',
     options: {
       package: 'Product',
       loader: {
-        includeDirs: [
-          join(process.cwd(), "../", "../", "libs", 'proto'),
-        ]
+        includeDirs: [join(process.cwd(), 'proto')],
       },
-      protoPath: join(process.cwd(), "../", "../", "libs", 'proto/product.proto'),
-    }
+      protoPath: join(process.cwd(), 'proto/product.proto'),
+    },
   });
-  app.useGlobalFilters(new ExceptionFilter())
+  app.useGlobalFilters(new ExceptionFilter());
   await app.listen();
 }
 bootstrap();
-
-
